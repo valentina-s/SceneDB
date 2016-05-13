@@ -1,9 +1,19 @@
 import os
 import re
 from connections import s3, db
+import connections
 import glob
+import Pyro4
+import sys
+import psycopg2
 
 dir = '/Users/brandon/escience/video_analytics/docker-opencv/data/videos'
+
+cur = db.cursor()
+
+opencv_uri = sys.argv[1]
+print '{uri}@{host}:7771'.format(uri=opencv_uri, host=connections.host)
+opencv_client = Pyro4.Proxy('{uri}@{host}:7771'.format(uri=opencv_uri, host=connections.host))
 
 
 def video_files():
@@ -26,17 +36,29 @@ class FileHandle(object):
         self._released = True
         # TODO delete the temporary file
 
+
 def scenes(filename):
-    fullpath, ext = os.path.splitext(filename)
-    base, keyb = os.path.split(fullpath)
+    base, keyb = os.path.split(filename)   # /local/path, camhd.mp4
 
     # TODO opencv split
-    for i in [0,1,2,3]:
-        key = "{keyb}_{scene}{ext}".format(keyb=keyb, scene=i, ext=ext)
-        yield i, key, FileHandle(os.path.join(base, key))
+
+    cur.execute("select scene_id, starts, ends from scene_bounds")
+    all_bounds = list(cur.fetchall())
+
+    # have to convert to float
+    all_bounds = [(i, float(s), float(e)) for i, s, e in all_bounds]
+    print all_bounds
+
+    scene_clips = opencv_client.extract_scenes(keyb, all_bounds)
+
+    for row, key in zip(all_bounds, scene_clips):
+        yield row[0], key, FileHandle(os.path.join(base, key))
 
 
-timestamp_pat = re.compile(r'CAMHDA\d+-(?P<year>\d\d\d\d)(?P<month>\d\d)(?P<day>\d\d)T(?P<hour>\d\d)\d+Z')
+timestamp_pat = re.compile(
+    r'CAMHDA\d+-(?P<year>\d\d\d\d)(?P<month>\d\d)(?P<day>\d\d)T(?P<hour>\d\d)\d+Z')
+
+
 def extract_timestamp(filename):
     m = timestamp_pat.search(filename)
     if not m:
@@ -44,15 +66,10 @@ def extract_timestamp(filename):
     # FIXME: extract time properly
     return "{year}-{month}-{day} {hour}:00:00".format(**m.groupdict())
 
-cur = db.cursor()
-
 for fn in video_files():
     t = extract_timestamp(fn)
 
     for id, key, data in scenes(fn):
-        cur.execute("insert into scenes values (timestamp '{t}', {id}, '{key}')".format(t=t, id=id, key=key))
-        db.commit()
-
         if False:
             with open(data.name()) as f:
                 print s3.put_object(ACL='private',
@@ -61,3 +78,7 @@ for fn in video_files():
                                         Key=key)
 
         data.release()
+
+        cur.execute("insert into scenes values (timestamp '{t}', {id}, '{key}')".format(t=t, id=id, key=key))
+        db.commit()
+

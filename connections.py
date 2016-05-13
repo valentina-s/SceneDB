@@ -8,7 +8,7 @@ s3 = boto3.client('s3')
 
 if os.uname()[0] == 'Darwin':
     # docker runs within docker-machine on OSX
-    host = subprocess.check_output('docker-machine ip default', shell=True)
+    host = subprocess.check_output('docker-machine ip default', shell=True).strip()
 else:
     host = 'localhost'
 
