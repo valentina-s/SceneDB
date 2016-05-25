@@ -7,6 +7,7 @@ import Pyro4
 import sys
 from urlparse import urlparse
 import argparse
+import errno
 import psycopg2
 
 dir = '/Users/brandon/escience/video_analytics/docker-opencv/data/videos'
@@ -105,7 +106,14 @@ if __name__ == '__main__':
         for obj in dir_uri.get_bucket():
             file_uri = boto.storage_uri(os.path.join(src_uri.path.split('/')[0], obj.name), 'gs')
             local_dir = os.path.split(obj.name)[0]
-            os.makedirs(local_dir, exist_ok=True)
+            try:
+                os.makedirs(local_dir)
+            except OSError as exc:
+                if exc.errno == errno.EEXIST and os.path.isdir(local_dir):
+                    pass
+                else:
+                    raise exc
+
             print "saving ", obj.name
             with open(obj.name, 'wb') as tempf:
                 file_uri.get_key().get_file(tempf)
