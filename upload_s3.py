@@ -13,10 +13,7 @@ dir = '/Users/brandon/escience/video_analytics/docker-opencv/data/videos'
 
 cur = db.cursor()
 
-opencv_uri = sys.argv[1]
-print '{uri}@{host}:7771'.format(uri=opencv_uri, host=connections.host)
-opencv_client = Pyro4.Proxy('{uri}@{host}:7771'.format(uri=opencv_uri, host=connections.host))
-
+opencv_client = None
 
 def video_files():
     # TODO download files
@@ -88,8 +85,12 @@ for fn in video_files():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Download raw videos, cut into scenes, and upload")
     parser.add_argument('--src-uri', dest='src_uri', required=True)
+    parser.add_argument('--opencv-uri', dest='opencv_uri', required=True)
 
     opt = parser.parse_args(sys.argv[1:])
+
+    print '{uri}@{host}:7771'.format(uri=opt.opencv_uri, host=connections.host)
+    opencv_client = Pyro4.Proxy('{uri}@{host}:7771'.format(uri=opt.opencv_uri, host=connections.host))
 
     src_uri = urlparse(opt.src_uri)
 
