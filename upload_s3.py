@@ -5,6 +5,8 @@ import connections
 import glob
 import Pyro4
 import sys
+from urlparse import urlparse
+import argparse
 import psycopg2
 
 dir = '/Users/brandon/escience/video_analytics/docker-opencv/data/videos'
@@ -81,4 +83,28 @@ for fn in video_files():
 
         cur.execute("insert into scenes values (timestamp '{t}', {id}, '{key}')".format(t=t, id=id, key=key))
         db.commit()
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Download raw videos, cut into scenes, and upload")
+    parser.add_argument('--src-uri', dest='src_uri', required=True)
+
+    opt = parser.parse_args(sys.argv[1:])
+
+    src_uri = urlparse(opt.src_uri)
+
+    if src_uri.scheme == 'gs':
+        import boto
+        import gcs_oauth2_boto_plugin
+        dir_uri = boto.storage_uri(src_uri.path, 'gs')
+
+        for obj in dir_uri.get_bucket():
+            file_uri = boto.storage_uri(os.path.join(src_uri.path.split('/')[0], obj.name), 'gs')
+            local_dir = os.path.split(obj.name)[0]
+            os.makedirs(local_dir, exist_ok=True)
+            print "saving ", obj.name
+            with open(obj.name, 'wb') as tempf:
+                file_uri.get_key().get_file(tempf)
+    else:
+        raise NotImplementedError("unsupported scheme {}".format(src_uri.scheme))
 
