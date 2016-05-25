@@ -104,7 +104,7 @@ if __name__ == '__main__':
         dir_uri = boto.storage_uri(src_uri.hostname + src_uri.path, 'gs')
 
         for obj in dir_uri.get_bucket():
-            file_uri = boto.storage_uri(os.path.join(src_uri.path.split('/')[0], obj.name), 'gs')
+            file_uri = boto.storage_uri(os.path.join(src_uri.hostname, obj.name), 'gs')
             local_dir = os.path.split(obj.name)[0]
             try:
                 os.makedirs(local_dir)
