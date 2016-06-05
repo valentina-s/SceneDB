@@ -28,8 +28,10 @@ def extract_scenes(name, bounds):
                 start=start, duration=end-start, inf=name, outf=outname),
                                   shell=True, stderr=subprocess.PIPE)
 
+        _, p_stderr = p.communicate()
+
         if p.returncode != 0:
-            err_msg = "{0}. Code: {1}".format(p.communicate()[1].strip(), p.returncode)
+            err_msg = "{0}. Code: {1}".format(p_stderr.strip(), p.returncode)
             raise Exception(err_msg)
 
         files.append(outname)
