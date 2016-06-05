@@ -116,6 +116,7 @@ if __name__ == '__main__':
             t = extract_timestamp(obj.name)
 
             for id, key, data in scenes(obj.name):
+                print "  uploading ", data.name()
                 with open(data.name()) as f:
                     if dst_uri.scheme == 'gs':
                         ofile_uri = boto.storage_uri(os.path.join(dst_uri.hostname + dst_uri.path, key), 'gs)')
