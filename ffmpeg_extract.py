@@ -18,15 +18,19 @@ def extract_scenes(name, bounds):
         outname = "{basename}_{scene}.mp4".format(basename=basename, scene=id)
 
         # TODO: might experiment with -ss args before and after -i
-        subprocess.check_call("ffmpeg \
-                                -y \
-                              -ss {start} \
-                              -i {inf} \
-                              -to {duration} \
-                              -c copy \
-                              {outf}".format(
-            start=start, duration=end-start, inf=name, outf=outname),
-                              shell=True)
+        p = subprocess.Popen("ffmpeg \
+                                    -y \
+                                  -ss {start} \
+                                  -i {inf} \
+                                  -to {duration} \
+                                  -c copy \
+                                  {outf}".format(
+                start=start, duration=end-start, inf=name, outf=outname),
+                                  shell=True, stderr=subprocess.PIPE)
+
+        if p.returncode != 0:
+            err_msg = "{0}. Code: {1}".format(p.communicate()[1].strip(), p.returncode)
+            raise Exception(err_msg)
 
         files.append(outname)
 
