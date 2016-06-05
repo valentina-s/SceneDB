@@ -3,11 +3,11 @@ import re
 from connections import s3, db
 import connections
 import glob
-import Pyro4
 import sys
 from urlparse import urlparse
 import argparse
 import errno
+import ffmpeg_extract
 import psycopg2
 
 dir = '/Users/brandon/escience/video_analytics/docker-opencv/data/videos'
@@ -49,7 +49,13 @@ def scenes(filename):
     all_bounds = [(i, float(s), float(e)) for i, s, e in all_bounds]
     print all_bounds
 
-    scene_clips = opencv_client.extract_scenes(keyb, all_bounds)
+    if opencv_client is not None:
+        scene_clips = opencv_client.extract_scenes(keyb, all_bounds)
+    else:
+        scene_clips = ffmpeg_extract.extract_scenes(filename, all_bounds)
+        # just keep the filename, we have the base
+        for i in range(len(scene_clips)):
+            scene_clips[i] = os.path.split(scene_clips[i])[1]
 
     for row, key in zip(all_bounds, scene_clips):
         yield row[0], key, FileHandle(os.path.join(base, key))
@@ -91,10 +97,12 @@ if __name__ == '__main__':
     opt = parser.parse_args(sys.argv[1:])
 
     if opt.opencv_uri:
+        import Pyro4
         print '{uri}@{host}:7771'.format(uri=opt.opencv_uri, host=connections.host)
         opencv_client = Pyro4.Proxy('{uri}@{host}:7771'.format(uri=opt.opencv_uri, host=connections.host))
     else:
-        sys.stderr.write("WARNING: No Pyro4 provided; opencv operations will fail\n")
+        # use ffmpeg
+        pass
 
     src_uri = urlparse(opt.src_uri)
 
