@@ -75,8 +75,8 @@ def extract_timestamp(filename):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Download raw videos, cut into scenes, and upload")
-    parser.add_argument('--src-uri', dest='src_uri', required=True, description="A directory with videos to process")
-    parser.add_argument('--dst-uri', dest='dst_uri', required=True, description="A directory to save scenes to")
+    parser.add_argument('--src-uri', dest='src_uri', required=True, help="A directory with videos to process")
+    parser.add_argument('--dst-uri', dest='dst_uri', required=True, help="A directory to save scenes to")
     parser.add_argument('--opencv-uri', dest='opencv_uri')
 
     opt = parser.parse_args(sys.argv[1:])
