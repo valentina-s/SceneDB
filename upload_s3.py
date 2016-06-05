@@ -119,7 +119,7 @@ if __name__ == '__main__':
                 print "  uploading ", data.name()
                 with open(data.name()) as f:
                     if dst_uri.scheme == 'gs':
-                        ofile_uri = boto.storage_uri(os.path.join(dst_uri.hostname + dst_uri.path, key), 'gs)')
+                        ofile_uri = boto.storage_uri(os.path.join(dst_uri.hostname + dst_uri.path, key), 'gs')
                         ofile_uri.new_key().set_contents_from_file(f)
                     else:
                         raise NotImplementedError("unsupported scheme {}".format(src_uri.scheme))
