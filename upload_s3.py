@@ -72,26 +72,11 @@ def extract_timestamp(filename):
     # FIXME: extract time properly
     return "{year}-{month}-{day} {hour}:00:00".format(**m.groupdict())
 
-for fn in video_files():
-    t = extract_timestamp(fn)
-
-    for id, key, data in scenes(fn):
-        if False:
-            with open(data.name()) as f:
-                print s3.put_object(ACL='private',
-                                        Body=f,
-                                        Bucket='escience.washington.edu.camhd',
-                                        Key=key)
-
-        data.release()
-
-        cur.execute("insert into scenes values (timestamp '{t}', {id}, '{key}')".format(t=t, id=id, key=key))
-        db.commit()
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Download raw videos, cut into scenes, and upload")
-    parser.add_argument('--src-uri', dest='src_uri', required=True)
+    parser.add_argument('--src-uri', dest='src_uri', required=True, description="A directory with videos to process")
+    parser.add_argument('--dst-uri', dest='dst_uri', required=True, description="A directory to save scenes to")
     parser.add_argument('--opencv-uri', dest='opencv_uri')
 
     opt = parser.parse_args(sys.argv[1:])
@@ -105,6 +90,7 @@ if __name__ == '__main__':
         pass
 
     src_uri = urlparse(opt.src_uri)
+    dst_uri = urlparse(opt.dst_uri)
 
     if src_uri.scheme == 'gs':
         import boto
@@ -122,9 +108,25 @@ if __name__ == '__main__':
                 else:
                     raise exc
 
-            print "saving ", obj.name
+            print "saving locally temporarily:", obj.name
             with open(obj.name, 'wb') as tempf:
                 file_uri.get_key().get_file(tempf)
+
+            # extract and save
+            t = extract_timestamp(obj.name)
+
+            for id, key, data in scenes(obj.name):
+                with open(data.name()) as f:
+                    if dst_uri.scheme == 'gs':
+                        ofile_uri = boto.storage_uri(os.path.join(dst_uri.hostname + dst_uri.path, key), 'gs)')
+                        ofile_uri.new_key().set_contents_from_file(f)
+                    else:
+                        raise NotImplementedError("unsupported scheme {}".format(src_uri.scheme))
+
+                data.release()
+
+                cur.execute("insert into scenes values (timestamp '{t}', {id}, '{key}')".format(t=t, id=id, key=key))
+                db.commit()
     else:
         raise NotImplementedError("unsupported scheme {}".format(src_uri.scheme))
 
