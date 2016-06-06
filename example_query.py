@@ -37,15 +37,18 @@ class GetSceneInEachQuery(object):
 
 if __name__ == '__main__':
     def save_file(name, uri):
+        dirpath = os.curdir + os.path.dirname(name)+'/queryresult'
         try:
-            os.makedirs(os.curdir + os.path.dirname(name)+'/queryresult')
+            os.makedirs(dirpath)
         except OSError as exc:
             if exc.errno == errno.EEXIST and os.path.isdir(name):
                 pass
             else:
                 raise exc
 
-        with open(name, 'wb') as f:
+        fn = os.path.join(dirpath, os.path.basename(name))
+
+        with open(fn, 'wb') as f:
             uri.get_key().get_file(f)
 
     GetSceneInEachQuery(1, save_file).execute()
