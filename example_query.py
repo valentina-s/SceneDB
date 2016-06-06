@@ -24,7 +24,7 @@ class GetSceneInEachQuery(object):
         if len(results) == 0:
             sys.stderr.write("WARNING: no scenes found for id\n")
 
-        for row in cur.fectchall():
+        for row in results:
             url = urlparse(row[0])
 
             if url.scheme == 'gs':
