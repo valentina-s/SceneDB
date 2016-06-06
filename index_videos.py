@@ -35,7 +35,7 @@ def scenes(filename):
     # TODO opencv split
 
     cur.execute("""select scene_id, starts, ends from scene_bounds
-                    where video_date=timestamp '{}'""".format(extract_timestamp(keyb)))
+                    where video_date=timestamp %s""", extract_timestamp(keyb))
     all_bounds = list(cur.fetchall())
 
     # have to convert to float
@@ -136,6 +136,8 @@ if __name__ == '__main__':
                 os.remove(obj.name)
             else:
                 # TODO: Inserting fake scene bounds right now, but we really want to find them
+                # by processing each video
+
                 cur.execute("insert into scene_bounds values (timestamp %s, %s, %s, %s)", (t, 0, 42, 45))
                 cur.execute("insert into scene_bounds values (timestamp %s, %s, %s, %s)", (t, 1, 1*60+3, 1*60+12))
                 cur.execute("insert into scene_bounds values (timestamp %s, %s, %s, %s)", (t, 2, 1*60+28, 1*60+32))
