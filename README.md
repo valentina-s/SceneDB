@@ -1,6 +1,6 @@
 # ashdm
 
-Index CamHD video files by scenes.
+Database for OOI CamHD, where video files are indexed by scenes
 
 ## Setup and run the database
 
