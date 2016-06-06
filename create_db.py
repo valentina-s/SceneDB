@@ -5,8 +5,8 @@ def create_db():
     cur = db.cursor()
 
     cur.execute("""CREATE TABLE scene_bounds (
-                                    scene_id integer,
                                     video_date timestamp,
+                                    scene_id integer,
                                     starts decimal,
                                     ends decimal,
                                     PRIMARY KEY(video_date, scene_id));
