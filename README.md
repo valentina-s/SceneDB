@@ -37,7 +37,7 @@ These instructions assume the videos are already in a Google Storage bucket call
 To be able to read/write to Google Storage buckets, be sure you are authenticated.
 If you are using the [default service account](https://cloud.google.com/compute/docs/access/create-enable-service-accounts-for-instances) and that service account has permission to access your bucket, then your instance terminal session will be authenticated already.
 
-## Populate the `scene_bounds` for a set of videos
+### Populate the `scene_bounds` for a set of videos
 
 The following command processes\* all the videos to find their scene bounds.
 
@@ -49,7 +49,7 @@ python index_videos.py \
 
 \* Right now the *processing* is a stub that inserts hardcoded bounds for each video.
 
-## Index the set of videos
+### Index the set of videos
 
 
 The following command will take all the mp4 files in `gs://escience_camhd/files/RS03ASHS/PN03B/06-CAMHDA301/2016/04/04` and index them into the scenes specified in the `scene_bounds` table.
