@@ -19,7 +19,7 @@ class GetSceneInEachQuery(object):
         cur = db.cursor()
         cur.execute(self._query)
 
-        results = cur.fectchall()
+        results = cur.fetchall()
 
         if len(results) == 0:
             sys.stderr.write("WARNING: no scenes found for id\n")
