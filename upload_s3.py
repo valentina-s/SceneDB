@@ -2,24 +2,16 @@ import os
 import re
 from connections import s3, db
 import connections
-import glob
 import sys
 from urlparse import urlparse
 import argparse
 import errno
 import ffmpeg_extract
-import psycopg2
 
-dir = '/Users/brandon/escience/video_analytics/docker-opencv/data/videos'
 
 cur = db.cursor()
 
 opencv_client = None
-
-def video_files():
-    # TODO download files
-    for fn in glob.glob(os.path.join(dir, 'opendap_hyrax_large_format_*CAMHDA*CAMHDA*T*Z.mp4')):
-        yield fn
 
 
 class FileHandle(object):
@@ -34,7 +26,7 @@ class FileHandle(object):
         assert not self._released, "Already released"
 
         self._released = True
-        # TODO delete the temporary file
+        os.remove(self._name)
 
 
 def scenes(filename):
