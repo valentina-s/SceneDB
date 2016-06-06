@@ -113,13 +113,21 @@ if __name__ == '__main__':
                     if dst_uri.scheme == 'gs':
                         ofile_uri = boto.storage_uri(os.path.join(dst_uri.hostname + dst_uri.path, key), 'gs')
                         ofile_uri.new_key().set_contents_from_file(f)
+                        fullkey = "{s}://{b}/{o}".format(
+                            s=ofile_uri.scheme,
+                            b=ofile_uri.bucket_name,
+                            o=ofile_uri.object_name)
                     else:
                         raise NotImplementedError("unsupported scheme {}".format(src_uri.scheme))
 
+                # done with local copy of this scene file
                 data.release()
 
-                cur.execute("insert into scenes values (timestamp '{t}', {id}, '{key}')".format(t=t, id=id, key=key))
+                cur.execute("insert into scenes values (timestamp '{t}', {id}, '{key}')".format(t=t, id=id, key=fullkey))
                 db.commit()
+
+            # delete the local copy of original video
+            os.remove(obj.name)
     else:
         raise NotImplementedError("unsupported scheme {}".format(src_uri.scheme))
 
