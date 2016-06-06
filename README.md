@@ -59,4 +59,8 @@ In the near future, we will modify the schema of the `scene_bounds` table to inc
 scene_bounds (scene_id integer, video_date timestamp, starts decimal, ends decimal, PRIMARY KEY(scene_id, video_date));
 ```
 
+## Looking at the tables directly
+
+Run the postgresql shell with `./ashdm_psql.sh`
+
 A scene-finding program should insert into this `scene_bounds` table.
