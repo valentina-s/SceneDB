@@ -29,14 +29,18 @@ class FileHandle(object):
         os.remove(self._name)
 
 
-def scenes(filename):
+def scenes(filename, method):
     base, keyb = os.path.split(filename)   # /local/path, camhd.mp4
 
     # TODO opencv split
 
     cur.execute("""select scene_id, starts, ends from scene_bounds
-                    where video_date=timestamp %s""", extract_timestamp(keyb))
+                    where video_date=timestamp %s and method=%s""", (extract_timestamp(keyb), method))
     all_bounds = list(cur.fetchall())
+
+    cur.execute("""select scene_id, method, starts, ends from scene_bounds
+                    where video_date=timestamp %s and method=%s""", (extract_timestamp(keyb), method))
+    all_bounds_with_method = list(cur.fetchall())
 
     # have to convert to float
     all_bounds = [(i, float(s), float(e)) for i, s, e in all_bounds]
@@ -50,8 +54,8 @@ def scenes(filename):
         for i in range(len(scene_clips)):
             scene_clips[i] = os.path.split(scene_clips[i])[1]
 
-    for row, key in zip(all_bounds, scene_clips):
-        yield row[0], key, FileHandle(os.path.join(base, key))
+    for row, key in zip(all_bounds_with_method, scene_clips):
+        yield row[0], row[1], key, FileHandle(os.path.join(base, key))
 
 
 timestamp_pat = re.compile(
@@ -73,6 +77,7 @@ if __name__ == '__main__':
     group.add_argument('--dst-uri', dest='dst_uri', help="A directory to save scenes to")
     group.add_argument('--find-scene-bounds', dest='find_scene_bounds', action="store_true", help="*Stub* for finding scene bounds")
     parser.add_argument('--opencv-uri', dest='opencv_uri')
+    parser.add_argument('--method', dest='method', help='extraction method', default='hardcoded')
 
     opt = parser.parse_args(sys.argv[1:])
 
@@ -113,7 +118,7 @@ if __name__ == '__main__':
 
                 # extract and save
 
-                for id, key, data in scenes(obj.name):
+                for id, method, key, data in scenes(obj.name, opt.method):
                     print "  uploading ", data.name()
                     with open(data.name()) as f:
                         if dst_uri.scheme == 'gs':
@@ -129,7 +134,7 @@ if __name__ == '__main__':
                     # done with local copy of this scene file
                     data.release()
 
-                    cur.execute("insert into scenes values (timestamp '{t}', {id}, '{key}')".format(t=t, id=id, key=fullkey))
+                    cur.execute("insert into scenes values (timestamp %s, %s, %s, %s)", (t, id, method, fullkey))
                     db.commit()
 
                 # delete the local copy of original video
@@ -137,11 +142,12 @@ if __name__ == '__main__':
             else:
                 # TODO: Inserting fake scene bounds right now, but we really want to find them
                 # by processing each video
+                assert opt.method == 'hardcoded', "Only support hardcoded right now"
 
-                cur.execute("insert into scene_bounds values (timestamp %s, %s, %s, %s)", (t, 0, 42, 45))
-                cur.execute("insert into scene_bounds values (timestamp %s, %s, %s, %s)", (t, 1, 1*60+3, 1*60+12))
-                cur.execute("insert into scene_bounds values (timestamp %s, %s, %s, %s)", (t, 2, 1*60+28, 1*60+32))
-                cur.execute("insert into scene_bounds values (timestamp %s, %s, %s, %s)", (t, 3, 1*60+38, 2*60+7))
+                cur.execute("insert into scene_bounds values (timestamp %s, %s, %s, %s, %s)", (t, 0, 'hardcoded', 42, 45))
+                cur.execute("insert into scene_bounds values (timestamp %s, %s, %s, %s, %s)", (t, 1, 'hardcoded', 1*60+3, 1*60+12))
+                cur.execute("insert into scene_bounds values (timestamp %s, %s, %s, %s, %s)", (t, 2, 'hardcoded', 1*60+28, 1*60+32))
+                cur.execute("insert into scene_bounds values (timestamp %s, %s, %s, %s, %s)", (t, 3, 'hardcoded', 1*60+38, 2*60+7))
                 db.commit()
     else:
         raise NotImplementedError("unsupported scheme {}".format(src_uri.scheme))
