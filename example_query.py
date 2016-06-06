@@ -41,7 +41,7 @@ if __name__ == '__main__':
         try:
             os.makedirs(dirpath)
         except OSError as exc:
-            if exc.errno == errno.EEXIST and os.path.isdir(name):
+            if exc.errno == errno.EEXIST and os.path.isdir(dirpath):
                 pass
             else:
                 raise exc
