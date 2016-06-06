@@ -34,7 +34,8 @@ def scenes(filename):
 
     # TODO opencv split
 
-    cur.execute("select scene_id, starts, ends from scene_bounds")
+    cur.execute("""select scene_id, starts, ends from scene_bounds
+                    where video_date=timestamp '{}'""".format(extract_timestamp(keyb)))
     all_bounds = list(cur.fetchall())
 
     # have to convert to float
@@ -68,7 +69,9 @@ def extract_timestamp(filename):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Download raw videos, cut into scenes, and upload")
     parser.add_argument('--src-uri', dest='src_uri', required=True, help="A directory with videos to process")
-    parser.add_argument('--dst-uri', dest='dst_uri', required=True, help="A directory to save scenes to")
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('--dst-uri', dest='dst_uri', help="A directory to save scenes to")
+    group.add_argument('--find-scene-bounds', dest='find_scene_bounds', action="store_true", help="*Stub* for finding scene bounds")
     parser.add_argument('--opencv-uri', dest='opencv_uri')
 
     opt = parser.parse_args(sys.argv[1:])
@@ -91,43 +94,53 @@ if __name__ == '__main__':
 
         for obj in dir_uri.get_bucket():
             file_uri = boto.storage_uri(os.path.join(src_uri.hostname, obj.name), 'gs')
-            local_dir = os.path.split(obj.name)[0]
-            try:
-                os.makedirs(local_dir)
-            except OSError as exc:
-                if exc.errno == errno.EEXIST and os.path.isdir(local_dir):
-                    pass
-                else:
-                    raise exc
 
-            print "saving locally temporarily:", obj.name
-            with open(obj.name, 'wb') as tempf:
-                file_uri.get_key().get_file(tempf)
-
-            # extract and save
             t = extract_timestamp(obj.name)
 
-            for id, key, data in scenes(obj.name):
-                print "  uploading ", data.name()
-                with open(data.name()) as f:
-                    if dst_uri.scheme == 'gs':
-                        ofile_uri = boto.storage_uri(os.path.join(dst_uri.hostname + dst_uri.path, key), 'gs')
-                        ofile_uri.new_key().set_contents_from_file(f)
-                        fullkey = "{s}://{b}/{o}".format(
-                            s=ofile_uri.scheme,
-                            b=ofile_uri.bucket_name,
-                            o=ofile_uri.object_name)
+            if opt.dst_uri is not None:
+                local_dir = os.path.split(obj.name)[0]
+                try:
+                    os.makedirs(local_dir)
+                except OSError as exc:
+                    if exc.errno == errno.EEXIST and os.path.isdir(local_dir):
+                        pass
                     else:
-                        raise NotImplementedError("unsupported scheme {}".format(src_uri.scheme))
+                        raise exc
 
-                # done with local copy of this scene file
-                data.release()
+                print "saving locally temporarily:", obj.name
+                with open(obj.name, 'wb') as tempf:
+                    file_uri.get_key().get_file(tempf)
 
-                cur.execute("insert into scenes values (timestamp '{t}', {id}, '{key}')".format(t=t, id=id, key=fullkey))
+                # extract and save
+
+                for id, key, data in scenes(obj.name):
+                    print "  uploading ", data.name()
+                    with open(data.name()) as f:
+                        if dst_uri.scheme == 'gs':
+                            ofile_uri = boto.storage_uri(os.path.join(dst_uri.hostname + dst_uri.path, key), 'gs')
+                            ofile_uri.new_key().set_contents_from_file(f)
+                            fullkey = "{s}://{b}/{o}".format(
+                                s=ofile_uri.scheme,
+                                b=ofile_uri.bucket_name,
+                                o=ofile_uri.object_name)
+                        else:
+                            raise NotImplementedError("unsupported scheme {}".format(src_uri.scheme))
+
+                    # done with local copy of this scene file
+                    data.release()
+
+                    cur.execute("insert into scenes values (timestamp '{t}', {id}, '{key}')".format(t=t, id=id, key=fullkey))
+                    db.commit()
+
+                # delete the local copy of original video
+                os.remove(obj.name)
+            else:
+                # TODO: Inserting fake scene bounds right now, but we really want to find them
+                cur.execute("insert into scene_bounds values (timestamp '%s', %s, %s, %s)", (t, 0, 42, 45))
+                cur.execute("insert into scene_bounds values (timestamp '%s', %s, %s, %s)", (t, 1, 1*60+3, 1*60+12))
+                cur.execute("insert into scene_bounds values (timestamp '%s', %s, %s, %s)", (t, 2, 1*60+28, 1*60+32))
+                cur.execute("insert into scene_bounds values (timestamp '%s', %s, %s, %s)", (t, 3, 1*60+38, 2*60+7))
                 db.commit()
-
-            # delete the local copy of original video
-            os.remove(obj.name)
     else:
         raise NotImplementedError("unsupported scheme {}".format(src_uri.scheme))
 
