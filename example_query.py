@@ -1,7 +1,8 @@
 from connections import db
 from urlparse import urlparse
 import sys
-
+import errno
+import os
 
 class GetSceneInEachQuery(object):
 
@@ -36,6 +37,14 @@ class GetSceneInEachQuery(object):
 
 if __name__ == '__main__':
     def save_file(name, uri):
+        try:
+            os.makedirs(os.path.dirname(name))
+        except OSError as exc:
+            if exc.errno == errno.EEXIST and os.path.isdir(name):
+                pass
+            else:
+                raise exc
+
         with open(name, 'wb') as f:
             uri.get_key().get_file(f)
 
