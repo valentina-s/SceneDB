@@ -14,7 +14,8 @@ libraries/tools:
 
 python modules
 
-- boto3
+- boto
+- gcs_oauth2_boto_plugin
 - psycopg2
 
 3. Create the postgresql database
