@@ -136,10 +136,10 @@ if __name__ == '__main__':
                 os.remove(obj.name)
             else:
                 # TODO: Inserting fake scene bounds right now, but we really want to find them
-                cur.execute("insert into scene_bounds values (timestamp '%s', %s, %s, %s)", (t, 0, 42, 45))
-                cur.execute("insert into scene_bounds values (timestamp '%s', %s, %s, %s)", (t, 1, 1*60+3, 1*60+12))
-                cur.execute("insert into scene_bounds values (timestamp '%s', %s, %s, %s)", (t, 2, 1*60+28, 1*60+32))
-                cur.execute("insert into scene_bounds values (timestamp '%s', %s, %s, %s)", (t, 3, 1*60+38, 2*60+7))
+                cur.execute("insert into scene_bounds values (timestamp %s, %s, %s, %s)", (t, 0, 42, 45))
+                cur.execute("insert into scene_bounds values (timestamp %s, %s, %s, %s)", (t, 1, 1*60+3, 1*60+12))
+                cur.execute("insert into scene_bounds values (timestamp %s, %s, %s, %s)", (t, 2, 1*60+28, 1*60+32))
+                cur.execute("insert into scene_bounds values (timestamp %s, %s, %s, %s)", (t, 3, 1*60+38, 2*60+7))
                 db.commit()
     else:
         raise NotImplementedError("unsupported scheme {}".format(src_uri.scheme))
