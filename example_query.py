@@ -38,7 +38,7 @@ class GetSceneInEachQuery(object):
 if __name__ == '__main__':
     def save_file(name, uri):
         try:
-            os.makedirs(os.path.dirname(name))
+            os.makedirs(os.path.dirname(name)+'/queryresult')
         except OSError as exc:
             if exc.errno == errno.EEXIST and os.path.isdir(name):
                 pass
