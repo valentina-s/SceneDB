@@ -48,5 +48,5 @@ if __name__ == '__main__':
         with open(name, 'wb') as f:
             uri.get_key().get_file(f)
 
-    GetSceneInEachQuery(1, save_file)
+    GetSceneInEachQuery(1, save_file).execute()
 
