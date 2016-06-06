@@ -85,7 +85,6 @@ if __name__ == '__main__':
         pass
 
     src_uri = urlparse(opt.src_uri)
-    dst_uri = urlparse(opt.dst_uri)
 
     if src_uri.scheme == 'gs':
         import boto
@@ -98,6 +97,7 @@ if __name__ == '__main__':
             t = extract_timestamp(obj.name)
 
             if opt.dst_uri is not None:
+                dst_uri = urlparse(opt.dst_uri)
                 local_dir = os.path.split(obj.name)[0]
                 try:
                     os.makedirs(local_dir)
