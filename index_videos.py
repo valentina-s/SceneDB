@@ -35,11 +35,11 @@ def scenes(filename, method):
     # TODO opencv split
 
     cur.execute("""select scene_id, starts, ends from scene_bounds
-                    where video_date=timestamp %s and method=%s""", extract_timestamp(keyb), method)
+                    where video_date=timestamp %s and method=%s""", (extract_timestamp(keyb), method))
     all_bounds = list(cur.fetchall())
 
     cur.execute("""select scene_id, method, starts, ends from scene_bounds
-                    where video_date=timestamp %s and method=%s""", extract_timestamp(keyb), method)
+                    where video_date=timestamp %s and method=%s""", (extract_timestamp(keyb), method))
     all_bounds_with_method = list(cur.fetchall())
 
     # have to convert to float
@@ -134,7 +134,7 @@ if __name__ == '__main__':
                     # done with local copy of this scene file
                     data.release()
 
-                    cur.execute("insert into scenes values (timestamp %s, %s, %s, %s)", t, id, method, fullkey)
+                    cur.execute("insert into scenes values (timestamp %s, %s, %s, %s)", (t, id, method, fullkey))
                     db.commit()
 
                 # delete the local copy of original video
