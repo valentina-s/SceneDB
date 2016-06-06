@@ -50,6 +50,7 @@ The overall result is new rows in the `scenes` table and new video files in `gs:
 
 ## Querying the database
 
+For now you can think of a query as being specified by two things: a SQL query that returns URLs of scenes and code that does something with each scene file.
 See an example query of the ashdm database in `example_query.py`.
 
 ## Finding the scenes
