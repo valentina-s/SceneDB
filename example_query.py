@@ -4,11 +4,18 @@ import sys
 import errno
 import os
 
-class GetSceneInEachQuery(object):
 
+class GetSceneInEachQueryExample(object):
     """
+    Query the whole database for scene 1.
+
     scene: a scene id in the scene_bounds table
     on_uri: function(name, uri) called for each scene file
+
+    Note about this example:
+    Any query you can express in SQL is possible in ashdm, e.g., looking
+    for only videos in a given date range. This class
+    just represents a very simple query as an example.
     """
     def __init__(self, scene, on_uri):
         self._query = """select url from scenes S, scene_bounds SB
@@ -36,6 +43,8 @@ class GetSceneInEachQuery(object):
 
 
 if __name__ == '__main__':
+    """This example query just saves scene 1 from all videos in the database"""
+
     def save_file(name, uri):
         dirpath = os.curdir + os.path.dirname(name)+'/queryresult'
         try:
@@ -51,5 +60,5 @@ if __name__ == '__main__':
         with open(fn, 'wb') as f:
             uri.get_key().get_file(f)
 
-    GetSceneInEachQuery(1, save_file).execute()
+    GetSceneInEachQueryExample(1, save_file).execute()
 
