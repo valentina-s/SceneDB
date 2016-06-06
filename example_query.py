@@ -17,9 +17,9 @@ class GetSceneInEachQueryExample(object):
     for only videos in a given date range. This class
     just represents a very simple query as an example.
     """
-    def __init__(self, scene, on_uri):
+    def __init__(self, scene, method, on_uri):
         self._query = """select url from scenes S, scene_bounds SB
-                        where S.scene_id = {}""".format(scene)
+                        where S.scene_id = {} and method='{}'""".format(scene, method)
         self._on_uri = on_uri
 
     def execute(self):
@@ -60,5 +60,5 @@ if __name__ == '__main__':
         with open(fn, 'wb') as f:
             uri.get_key().get_file(f)
 
-    GetSceneInEachQueryExample(1, save_file).execute()
+    GetSceneInEachQueryExample(1, 'hardcoded', save_file).execute()
 
