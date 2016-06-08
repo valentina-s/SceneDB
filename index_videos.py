@@ -78,6 +78,7 @@ if __name__ == '__main__':
     group.add_argument('--find-scene-bounds', dest='find_scene_bounds', action="store_true", help="*Stub* for finding scene bounds")
     parser.add_argument('--opencv-uri', dest='opencv_uri')
     parser.add_argument('--method', dest='method', help='extraction method', default='hardcoded')
+    parser.add_argument('--cache-input-videos', action='store_true', dest='cache_input_videos', help='Do not remove local copy')
 
     opt = parser.parse_args(sys.argv[1:])
 
@@ -112,7 +113,11 @@ if __name__ == '__main__':
                     else:
                         raise exc
 
-                print "saving locally temporarily:", obj.name
+                if not opt.cache_input_videos:
+                    print "saving locally temporarily:", obj.name
+                else:
+                    print "saving locally (won't remove automatically):", obj.name
+
                 with open(obj.name, 'wb') as tempf:
                     file_uri.get_key().get_file(tempf)
 
@@ -138,7 +143,8 @@ if __name__ == '__main__':
                     db.commit()
 
                 # delete the local copy of original video
-                os.remove(obj.name)
+		if not opt.cache_input_videos:
+                    os.remove(obj.name)
             else:
                 # TODO: Inserting fake scene bounds right now, but we really want to find them
                 # by processing each video
