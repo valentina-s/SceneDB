@@ -44,7 +44,6 @@ def scenes(filename, method):
 
     # have to convert to float
     all_bounds = [(i, float(s), float(e)) for i, s, e in all_bounds]
-    print all_bounds
 
     if opencv_client is not None:
         scene_clips = opencv_client.extract_scenes(keyb, all_bounds)
@@ -60,6 +59,9 @@ def scenes(filename, method):
 
 timestamp_pat = re.compile(
     r'CAMHDA\d+-(?P<year>\d\d\d\d)(?P<month>\d\d)(?P<day>\d\d)T(?P<hour>\d\d)\d+Z')
+
+raw_timestamp_pat = re.compile(
+    r'CAMHDA\d+-(?P<stamp>\d\d\d\d\d\d\d\dT\d\d\d+Z)')
 
 
 def extract_timestamp(filename):
@@ -124,7 +126,6 @@ if __name__ == '__main__':
                 # extract and save
 
                 for id, method, key, data in scenes(obj.name, opt.method):
-                    print "  uploading ", data.name()
                     with open(data.name()) as f:
                         if dst_uri.scheme == 'gs':
                             ofile_uri = boto.storage_uri(os.path.join(dst_uri.hostname + dst_uri.path, key), 'gs')
@@ -133,6 +134,7 @@ if __name__ == '__main__':
                                 s=ofile_uri.scheme,
                                 b=ofile_uri.bucket_name,
                                 o=ofile_uri.object_name)
+                            print "  uploading ", data.name(), " to ", fullkey
                         else:
                             raise NotImplementedError("unsupported scheme {}".format(src_uri.scheme))
 
@@ -146,15 +148,34 @@ if __name__ == '__main__':
 		if not opt.cache_input_videos:
                     os.remove(obj.name)
             else:
-                # TODO: Inserting fake scene bounds right now, but we really want to find them
-                # by processing each video
-                assert opt.method == 'hardcoded', "Only support hardcoded right now"
+                if opt.method == 'hardcoded':
+                    # Inserting fake scene bounds right now, but we really want to find them
+                    # by processing each video
+                    cur.execute("insert into scene_bounds values (timestamp %s, %s, %s, %s, %s)", (t, 0, 'hardcoded', 42, 45))
+                    cur.execute("insert into scene_bounds values (timestamp %s, %s, %s, %s, %s)", (t, 1, 'hardcoded', 1*60+3, 1*60+12))
+                    cur.execute("insert into scene_bounds values (timestamp %s, %s, %s, %s, %s)", (t, 2, 'hardcoded', 1*60+28, 1*60+32))
+                    cur.execute("insert into scene_bounds values (timestamp %s, %s, %s, %s, %s)", (t, 3, 'hardcoded', 1*60+38, 2*60+7))
+                    db.commit()
+                elif opt.method == '1d-variance':
+                    import csv
+                    t_raw = raw_timestamp_pat.search(obj.name).group('stamp')
+                    # TODO: general path
+                    fn = '/home/brandon/OOIVideos/results/bounds_{}.csv'.format(t_raw)
+                    with open(fn, 'r') as csvfile:
+                        #TODO: do not hardcode this. assuming fps 29.97 and sample rate of 1/10 frames
+                        multiplier = 10.0/29.97
 
-                cur.execute("insert into scene_bounds values (timestamp %s, %s, %s, %s, %s)", (t, 0, 'hardcoded', 42, 45))
-                cur.execute("insert into scene_bounds values (timestamp %s, %s, %s, %s, %s)", (t, 1, 'hardcoded', 1*60+3, 1*60+12))
-                cur.execute("insert into scene_bounds values (timestamp %s, %s, %s, %s, %s)", (t, 2, 'hardcoded', 1*60+28, 1*60+32))
-                cur.execute("insert into scene_bounds values (timestamp %s, %s, %s, %s, %s)", (t, 3, 'hardcoded', 1*60+38, 2*60+7))
-                db.commit()
+                        reader = csv.reader(csvfile)
+                        # eat header
+                        next(reader, None)
+                        i = 0
+                        for row in reader:
+                            cur.execute("insert into scene_bounds values (timestamp %s, %s, %s, %s, %s)", (t, i, opt.method, float(row[0])*multiplier, float(row[1])*multiplier))
+                            i += 1
+                        db.commit()
+                else:
+                    raise Exception("method unknown: {}".format(opt.method))
+
     else:
         raise NotImplementedError("unsupported scheme {}".format(src_uri.scheme))
 
