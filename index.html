@@ -11,7 +11,7 @@
   </head>
   <body>
     <section class="page-header">
-      <h1 class="project-name">Scenedb</h1>
+      <h1 class="project-name">SceneDB</h1>
       <h2 class="project-tagline">Database for OOI CamHD, where video files are indexed by scenes</h2>
       <a href="https://github.com/amarburg/scenedb" class="btn">View on GitHub</a>
       <!-- <a href="https://github.com/amarburg/scenedb/zipball/master" class="btn">Download .zip</a>
@@ -21,23 +21,40 @@
     <section class="main-content">
 
 <h3><a id="welcome" class="anchor" href="#welcome" aria-hidden="true">
-<span aria-hidden="true" class="octicon octicon-link"></span></a>Welcome!</h3>
+<span aria-hidden="true" class="octicon octicon-link"></span></a>Welcome to the SceneDB project!</h3>
 
-<p>We are developing new methods and infrastructure for ad hoc video analytics over longitudinal high-resolution video streams, with application to the OOI HD undersea video feed.  Large-scale video feeds are increasingly common in a variety of domains, but a framework for advanced analysis, information extraction, and "situational awareness" at scale does not exist.  Scene analysis, anomaly detection, background filtering, and change detection over time are some of the initial tasks we seek to support, in addition to core curation and co-registration.
+<p>We are developing new methods and infrastructure for video analytics of longitudinal high-resolution video streams, with application to the <a href="http://oceanobservatories.org/">Ocean Observatories Initiative</a> <a href="http://oceanobservatories.org/streaming-underwater-video/"> HD undersea video feed </a>.  Large-scale video feeds are increasingly common in a variety of domains, but a framework for advanced analysis, information extraction, and "situational awareness" at scale does not exist.  Scene analysis, anomaly detection, background filtering, and change detection over time are some of the initial tasks we seek to support, in addition to core curation and co-registration.
 
 	<h3><a id="current-status" class="anchor" href="#welcome" aria-hidden="true">
 	<span aria-hidden="true" class="octicon octicon-link"></span></a>Current Status</h3>
 
+<p>
 
+Direct processing of the video streams is hindered by long downloading times and hard disk and memory constraints. The nature of the stream recording (with pan/tilt/zoom camera) requires additional reorganization of the video frames to obtain sequential monitoring of individual scenes. We have developed a framework which allows users to query individual scenes across time. The scenes are extracted automatically, and stored in a database of scenes (SceneDB). The approach would facilitate both end users who wish to explore the videos and data analysts who would like to perform longitudinal analysis and test scientific hypotheses. 
+
+
+
+<a href="images/CamHD_VideoFlow_public.svg" target="_blank" text>
+<figure>
+<img src= "images/CamHD_VideoFlow_public.svg" height="500" width="500"/>
+<figcaption>Workflow Diagram (click to enlarge).</figcaption>
+</figure>
+</p>
+
+
+<!--<p>
+We are currently testing different algorithms for automatic scene extraction and alignment.
+</p>-->
 
 <h3><a id="participants" class="anchor" href="#participants" aria-hidden="true">
 <span aria-hidden="true" class="octicon octicon-link"></span></a>Participants</h3>
 
 <ul>
-	<li>Brandon Myers (UW eScience Institute)
+	<li>Brandon Myers (UW eScience Institute, Computer Science & Engineering)
 	<li>Valentina Staneva (UW eScience Institute)
 	<li><a href="http://www.apl.washington.edu/people/profile.php?last_name=Marburg&first_name=Aaron">Aaron Marburg</a> (<a href="http://www.apl.washington.edu/">UW Applied Physics Laboratory</a>)
 	<li>John Delaney (UW School of Oceanography)
+    <li>Bill Howe (UW eScience Institute)
 </ul>
 
 <h3><a id="sponsors" class="anchor" href="#sponsors" aria-hidden="true">
