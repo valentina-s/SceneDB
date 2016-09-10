@@ -21,17 +21,17 @@ echo "deb https://apt.dockerproject.org/repo ubuntu-xenial main" | sudo tee /etc
 sudo apt-get update
 sudo apt-get install -y docker-engine
 
+# starting docker
+sudo service docker start
+
 # I might not need that
 # sudo vim /etc/apt/sources.list.d/docker.list
 # sudo apt-get update
 # sudo apt-get purge lxc-docker
 # apt-cache policy docker-engine
 
-# pip install boto3
-
-# run
-# ----------------------------------------------
-# sudo service docker start
+# decide if I need a virtual environment
+pip install boto3
 
 # sudo docker ps -a
 # ./ashdm_psql.sh

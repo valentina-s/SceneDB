@@ -1,4 +1,4 @@
-# ashdm
+# SceneDB
 
 Database for OOI CamHD, where video files are indexed by scenes
 
@@ -18,9 +18,15 @@ python modules
 - gcs_oauth2_boto_plugin
 - psycopg2
 
+You can also run the setup script (for Ubuntu 16.04)
+```{bash}
+  bash instance_setup.sh
+```
+
+
 3. Create the postgresql database
 
-```bash
+```{bash}
 # start the postgresql server
 ./start_postgres.sh
 
