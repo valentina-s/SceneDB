@@ -11,9 +11,9 @@ sudo apt-get install -y virtualenv
 # setup virtualenv (why not conda)
 sudo apt-get install -y python-psycopg2
 
-Y
+
 sudo apt-get install -y libssl-dev
-sudo pip install -y gcs-oauth2-boto-plugin
+sudo pip install gcs-oauth2-boto-plugin
 
 
 sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
