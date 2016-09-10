@@ -6,15 +6,19 @@ sudo apt-get install pip
 sudo apt-get update
 sudo apt-get install python-pip
 pip install –upgrade pip
-sudo apt-get install virtualenv
+sudo apt-get install -y virtualenv
 
 # setup virtualenv (why not conda)
-sudo apt-get install python-psycopg2
+sudo apt-get install -y python-psycopg2
+
+Y
+sudo apt-get install -y libssl-dev
+pip install gcs-oauth2-boto-plugin
 
 
-sudo apt-get install libssl-dev
-pip install gcs_oauth2 boto plugin
-
+sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+echo "deb https://apt.dockerproject.org/repo ubuntu-xenial main" | sudo tee /etc/apt/sources.list.d/docker.list
+sudo apt-get update
 sudo apt-get install docker-engine
 
 # I might not need that
