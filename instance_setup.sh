@@ -1,11 +1,11 @@
 # initial setup
 #-----------------------------------------------
 
-sudo apt-get install ffmpeg
-sudo apt-get install pip
-sudo apt-get update
-sudo apt-get install python-pip
-pip install –upgrade pip
+sudo apt-get install -y ffmpeg
+sudo apt-get install -y pip
+sudo apt-get -y update
+sudo apt-get install -y python-pip
+sudo pip install –upgrade pip
 sudo apt-get install -y virtualenv
 
 # setup virtualenv (why not conda)
@@ -13,7 +13,7 @@ sudo apt-get install -y python-psycopg2
 
 Y
 sudo apt-get install -y libssl-dev
-pip install gcs-oauth2-boto-plugin
+sudo pip install -y gcs-oauth2-boto-plugin
 
 
 sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
