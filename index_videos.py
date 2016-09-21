@@ -97,14 +97,17 @@ if __name__ == '__main__':
         import gcs_oauth2_boto_plugin
         dir_uri = boto.storage_uri(src_uri.hostname + src_uri.path, 'gs')
 
-        for obj in dir_uri.get_bucket():
-            file_uri = boto.storage_uri(os.path.join(src_uri.hostname, obj.name), 'gs')
+        # for obj in dir_uri.get_bucket():
+        listOfPaths = [obj.name+src_uri.path for obj in dir_uri.get_bucket() if src_uri.path[1:] in obj.name]
 
-            t = extract_timestamp(obj.name)
+        for obj in listOfPaths:
+            file_uri = boto.storage_uri(os.path.join(src_uri.hostname, obj), 'gs')
+
+            t = extract_timestamp(obj)
 
             if opt.dst_uri is not None:
                 dst_uri = urlparse(opt.dst_uri)
-                local_dir = os.path.split(obj.name)[0]
+                local_dir = os.path.split(obj)[0]
                 try:
                     os.makedirs(local_dir)
                 except OSError as exc:
@@ -118,12 +121,12 @@ if __name__ == '__main__':
                 else:
                     print "saving locally (won't remove automatically):", obj.name
 
-                with open(obj.name, 'wb') as tempf:
+                with open(obj, 'wb') as tempf:
                     file_uri.get_key().get_file(tempf)
 
                 # extract and save
 
-                for id, method, key, data in scenes(obj.name, opt.method):
+                for id, method, key, data in scenes(obj, opt.method):
                     print "  uploading ", data.name()
                     with open(data.name()) as f:
                         if dst_uri.scheme == 'gs':
@@ -144,11 +147,13 @@ if __name__ == '__main__':
 
                 # delete the local copy of original video
 		if not opt.cache_input_videos:
-                    os.remove(obj.name)
+                    os.remove(obj)
             else:
                 # TODO: Inserting fake scene bounds right now, but we really want to find them
                 # by processing each video
                 assert opt.method == 'hardcoded', "Only support hardcoded right now"
+                print(obj)
+                print(t)
 
                 cur.execute("insert into scene_bounds values (timestamp %s, %s, %s, %s, %s)", (t, 0, 'hardcoded', 42, 45))
                 cur.execute("insert into scene_bounds values (timestamp %s, %s, %s, %s, %s)", (t, 1, 'hardcoded', 1*60+3, 1*60+12))
@@ -157,4 +162,3 @@ if __name__ == '__main__':
                 db.commit()
     else:
         raise NotImplementedError("unsupported scheme {}".format(src_uri.scheme))
-
