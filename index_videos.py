@@ -103,6 +103,8 @@ if __name__ == '__main__':
         # for obj in dir_uri.get_bucket():
         listOfPaths = [obj.name for obj in dir_uri.get_bucket() if src_uri.path[1:] in obj.name]
 
+
+
         for obj in listOfPaths:
             file_uri = boto.storage_uri(os.path.join(src_uri.hostname, obj), 'gs')
             print(obj)
@@ -174,7 +176,23 @@ if __name__ == '__main__':
                     import csv
                     t_raw = raw_timestamp_pat.search(obj).group('stamp')
                     # TODO: general path
-                    fn = '/home/val/MEGA/eScienceWork/projects/OOIVideos/results/bounds_{}.csv'.format(t_raw)
+                    # reading the file from the gs bucket
+                    # first we download it locally
+                    listOfBounds = [obj.name for obj in dir_uri.get_bucket() if 'bounds_20160101' in obj.name]
+                    for filename in listOfBounds:
+                        bucket_name = 'gs://ooivideos-test-bucket' # change to more general after that
+                        bucket_uri = boto.storage_uri(filename)
+                        object_contents = StringIO.StringIO()
+                        bucket_uri.get_key.get_file(object_contents)
+                        local_uri = boto.storage_uri(filename, 'file')
+                        object_contents.seek(0)
+                        local_uri.new_key().set_contents_from_file()
+                        object_contents.close()
+
+
+                    # then read from local files
+
+                    fn = 'results/bounds_{}.csv'.format(t_raw)
                     with open(fn, 'r') as csvfile:
                         #TODO: do not hardcode this. assuming fps 29.97 and sample rate of 1/10 frames
                         multiplier = 10.0/29.97
