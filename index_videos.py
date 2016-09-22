@@ -91,23 +91,25 @@ if __name__ == '__main__':
         pass
 
     src_uri = urlparse(opt.src_uri)
-
+    print(src_uri)
+    print(src_uri.hostname)
     if src_uri.scheme == 'gs':
         import boto
         import gcs_oauth2_boto_plugin
         dir_uri = boto.storage_uri(src_uri.hostname + src_uri.path, 'gs')
 
         # for obj in dir_uri.get_bucket():
-        listOfPaths = [obj.name+src_uri.path for obj in dir_uri.get_bucket() if src_uri.path[1:] in obj.name]
+        listOfPaths = [obj.name for obj in dir_uri.get_bucket() if src_uri.path[1:] in obj.name]
 
         for obj in listOfPaths:
             file_uri = boto.storage_uri(os.path.join(src_uri.hostname, obj), 'gs')
-
+            print(obj)
             t = extract_timestamp(obj)
 
             if opt.dst_uri is not None:
                 dst_uri = urlparse(opt.dst_uri)
                 local_dir = os.path.split(obj)[0]
+                print(local_dir)
                 try:
                     os.makedirs(local_dir)
                 except OSError as exc:
@@ -117,20 +119,27 @@ if __name__ == '__main__':
                         raise exc
 
                 if not opt.cache_input_videos:
-                    print "saving locally temporarily:", obj.name
+                    print "saving locally temporarily:", obj
                 else:
-                    print "saving locally (won't remove automatically):", obj.name
+                    print "saving locally (won't remove automatically):", obj
 
+                
                 with open(obj, 'wb') as tempf:
+                    print(file_uri)
+		    print(type(file_uri))
+                    print(src_uri.hostname)
                     file_uri.get_key().get_file(tempf)
 
                 # extract and save
 
                 for id, method, key, data in scenes(obj, opt.method):
                     print "  uploading ", data.name()
-                    with open(data.name()) as f:
+                    print(os.path.join(dst_uri.hostname + dst_uri.path, key))
+                    
+		    with open(data.name()) as f:
                         if dst_uri.scheme == 'gs':
                             ofile_uri = boto.storage_uri(os.path.join(dst_uri.hostname + dst_uri.path, key), 'gs')
+		            print(ofile_uri)                           
                             ofile_uri.new_key().set_contents_from_file(f)
                             fullkey = "{s}://{b}/{o}".format(
                                 s=ofile_uri.scheme,
