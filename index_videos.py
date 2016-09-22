@@ -178,7 +178,7 @@ if __name__ == '__main__':
                     t_raw = raw_timestamp_pat.search(obj).group('stamp')
                     # TODO: general path
                     # reading the file from the gs bucket
-                    # first we download it locally
+                    # first download the folder resutls/bounds_20160101 locally
                     listOfBounds = [obj.name for obj in dir_uri.get_bucket() if 'bounds_20160101' in obj.name]
                     for filename in listOfBounds:
                         bucket_name = 'gs://ooivideos-test-bucket' # change to more general after that
@@ -192,7 +192,7 @@ if __name__ == '__main__':
 
 
                     # then read from local files
-                    fn = 'results/bounds_{}.csv'.format(t_raw)
+                    fn = 'results/bounds_20160101/Bounds_{}.csv'.format(t_raw)
                     with open(fn, 'r') as csvfile:
                         #TODO: do not hardcode this. assuming fps 29.97 and sample rate of 1/10 frames
                         multiplier = 10.0/29.97
