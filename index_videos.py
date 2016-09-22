@@ -174,6 +174,7 @@ if __name__ == '__main__':
                     db.commit()
                 elif opt.method == '1d-variance':
                     import csv
+                    import StringIO
                     t_raw = raw_timestamp_pat.search(obj).group('stamp')
                     # TODO: general path
                     # reading the file from the gs bucket
