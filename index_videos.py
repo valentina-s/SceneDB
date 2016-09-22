@@ -187,7 +187,7 @@ if __name__ == '__main__':
                         bucket_uri.get_key().get_file(object_contents)
                         local_uri = boto.storage_uri(filename, 'file')
                         object_contents.seek(0)
-                        local_uri.new_key().set_contents_from_file()
+                        local_uri.new_key().set_contents_from_file(objects.contents)
                         object_contents.close()
 
 
