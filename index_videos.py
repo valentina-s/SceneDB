@@ -184,7 +184,7 @@ if __name__ == '__main__':
                         bucket_name = 'gs://ooivideos-test-bucket' # change to more general after that
                         bucket_uri = boto.storage_uri(filename)
                         object_contents = StringIO.StringIO()
-                        bucket_uri.get_key.get_file(object_contents)
+                        bucket_uri.get_key().get_file(object_contents)
                         local_uri = boto.storage_uri(filename, 'file')
                         object_contents.seek(0)
                         local_uri.new_key().set_contents_from_file()
