@@ -160,7 +160,7 @@ if __name__ == '__main__':
                     db.commit()
 
                 # delete the local copy of original video
-        if not opt.cache_input_videos:
+                if not opt.cache_input_videos:
                     os.remove(obj)
             else:
 
