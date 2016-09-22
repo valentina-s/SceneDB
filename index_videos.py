@@ -140,10 +140,10 @@ if __name__ == '__main__':
                     print "  uploading ", data.name()
                     print(os.path.join(dst_uri.hostname + dst_uri.path, key))
 
-		            with open(data.name()) as f:
+                    with open(data.name()) as f:
                         if dst_uri.scheme == 'gs':
                             ofile_uri = boto.storage_uri(os.path.join(dst_uri.hostname + dst_uri.path, key), 'gs')
-		                    print(ofile_uri)
+                            print(ofile_uri)
                             ofile_uri.new_key().set_contents_from_file(f)
                             fullkey = "{s}://{b}/{o}".format(
                                 s=ofile_uri.scheme,
@@ -160,7 +160,7 @@ if __name__ == '__main__':
                     db.commit()
 
                 # delete the local copy of original video
-		if not opt.cache_input_videos:
+        if not opt.cache_input_videos:
                     os.remove(obj)
             else:
 
@@ -191,7 +191,6 @@ if __name__ == '__main__':
 
 
                     # then read from local files
-
                     fn = 'results/bounds_{}.csv'.format(t_raw)
                     with open(fn, 'r') as csvfile:
                         #TODO: do not hardcode this. assuming fps 29.97 and sample rate of 1/10 frames
