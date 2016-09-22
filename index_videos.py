@@ -182,7 +182,7 @@ if __name__ == '__main__':
                     listOfBounds = [obj.name for obj in dir_uri.get_bucket() if 'bounds_20160101' in obj.name]
                     for filename in listOfBounds:
                         bucket_name = 'gs://ooivideos-test-bucket' # change to more general after that
-                        bucket_uri = boto.storage_uri(filename)
+                        bucket_uri = boto.storage_uri(bucket_name+'/'+filename)
                         object_contents = StringIO.StringIO()
                         bucket_uri.get_key().get_file(object_contents)
                         local_uri = boto.storage_uri(filename, 'file')
