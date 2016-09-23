@@ -196,6 +196,7 @@ if __name__ == '__main__':
                     with open(fn, 'r') as csvfile:
                         #TODO: do not hardcode this. assuming fps 29.97 and sample rate of 1/10 frames
                         multiplier = 10.0/29.97
+                        multiplier = 10
 
                         reader = csv.reader(csvfile)
                         # eat header
