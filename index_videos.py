@@ -193,7 +193,7 @@ if __name__ == '__main__':
 
 
                     # then read from local files
-                    fn = 'results/bounds_20160101/Bounds_{}.csv'.format(t_raw)
+                    fn = 'results/bounds_{}/Bounds_{}.csv'.format(t_raw[:8],t_raw)
                     with open(fn, 'r') as csvfile:
                         #TODO: do not hardcode this. assuming fps 29.97 and sample rate of 1/10 frames
                         multiplier = 10.0/29.97
