@@ -180,6 +180,7 @@ if __name__ == '__main__':
                     # reading the file from the gs bucket
                     # first download the folder resutls/bounds_20160101 locally
                     listOfBounds = [obj.name for obj in dir_uri.get_bucket() if 'bounds_20160101' in obj.name]
+                    listOfBounds = [obj.name for obj in dir_uri.get_bucket() if 'bounds_weekly' in obj.name]
                     for filename in listOfBounds:
                         bucket_name = 'gs://ooivideos-test-bucket' # change to more general after that
                         bucket_uri = boto.storage_uri(bucket_name+'/'+filename)
@@ -192,11 +193,10 @@ if __name__ == '__main__':
 
 
                     # then read from local files
-                    fn = 'results/bounds_20160101/Bounds_{}.csv'.format(t_raw)
+                    fn = 'results/bounds_weekly/Bounds_{}.csv'.format(t_raw)
                     with open(fn, 'r') as csvfile:
                         #TODO: do not hardcode this. assuming fps 29.97 and sample rate of 1/10 frames
                         multiplier = 10.0/29.97
-                        multiplier = 10
 
                         reader = csv.reader(csvfile)
                         # eat header
