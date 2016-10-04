@@ -210,8 +210,8 @@ if __name__ == '__main__':
                 elif opt.method == '1d-variance':
                     import imp
                     # need the full path on the instance
-                    imp.load_source('calculate_stats','~/OOIVideos/code/calculate_videos_statistics.py')
-                    imp.load_source('extract_scenes','~/OOIVideos/code/extract_scenes.py')
+                    imp.load_source('calculate_stats','/home/vms16/OOIVideos/code/calculate_video_statistics.py')
+                    imp.load_source('extract_scenes','/home/vms16/OOIVideos/code/extract_scenes.py')
                     print(obj)
                     ###
                     # read the obj
