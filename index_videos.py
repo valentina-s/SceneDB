@@ -212,11 +212,16 @@ if __name__ == '__main__':
                     # need the full path on the instance
                     imp.load_source('calculate_stats','/home/vms16/OOIVideos/code/calculate_video_statistics.py')
                     imp.load_source('extract_scenes','/home/vms16/OOIVideos/code/extract_scenes.py')
+                    print('obj')
                     print(obj)
                     ###
                     # read the obj
                     ###
-                    
+                    rolling_mean, rolling_var = calculate_stats.calculateRollingStats(obj)
+
+                    # write bounds to file
+                    pd.DataFrame(rolling_var).to_csv(os.path.join(results_path,filename_out), index = None, header = None)
+                    # read bounds from file
 
                     # loading the file
                     #  calculate var (this takes forever)
@@ -231,21 +236,9 @@ if __name__ == '__main__':
                     listOfBounds = [obj.name for obj in dir_uri.get_bucket() if 'bounds_20160101' in obj.name]
                     listOfBounds = [obj.name for obj in dir_uri.get_bucket() if 'bounds_weekly' in obj.name]
 
-                    for filename in listOfBounds:
-                        bucket_name = 'gs://ooivideos-test-bucket' # change to more general after that
-                        bucket_uri = boto.storage_uri(bucket_name+'/'+filename)
-                        object_contents = StringIO.StringIO()
-                        bucket_uri.get_key().get_file(object_contents)
-                        local_uri = boto.storage_uri(filename, 'file')
-                        object_contents.seek(0)
-                        local_uri.new_key().set_contents_from_file(object_contents)
-                        object_contents.close()
 
 
-                    # then read from local files
-                    fn = 'results/bounds_weekly/Bounds_{}.csv'.format(t_raw)
-
-                    with open(fn, 'r') as csvfile:
+                    with open(os.path.join(results_path,filename_out), 'r') as csvfile:
                         #TODO: do not hardcode this. assuming fps 29.97 and sample rate of 1/10 frames
                         multiplier = 10.0/29.97
 
