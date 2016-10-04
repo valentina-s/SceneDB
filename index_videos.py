@@ -172,7 +172,7 @@ if __name__ == '__main__':
                     cur.execute("insert into scene_bounds values (timestamp %s, %s, %s, %s, %s)", (t, 2, 'hardcoded', 1*60+28, 1*60+32))
                     cur.execute("insert into scene_bounds values (timestamp %s, %s, %s, %s, %s)", (t, 3, 'hardcoded', 1*60+38, 2*60+7))
                     db.commit()
-                elif opt.method == '1d-variance':
+                elif opt.method == 'from-csv':
                     import csv
                     import StringIO
                     t_raw = raw_timestamp_pat.search(obj).group('stamp')
@@ -207,6 +207,57 @@ if __name__ == '__main__':
                             cur.execute("insert into scene_bounds values (timestamp %s, %s, %s, %s, %s)", (t, i, opt.method, float(row[0])*multiplier, float(row[1])*multiplier))
                             i += 1
                         db.commit()
+                elif opt.method == '1d-variance':
+                    import imp
+                    # need the full path on the instance
+                    imp.load_source('calculate_stats','~/OOIVideos/code/calculate_videos_statistics.py')
+                    imp.load_source('extract_scenes','~/OOIVideos/code/extract_scenes.py')
+                    print(obj)
+                    ###
+                    # read the obj
+                    ###
+                    
+
+                    # loading the file
+                    #  calculate var (this takes forever)
+                    # extract scenes based on variance
+
+                    import csv
+                    import StringIO
+                    t_raw = raw_timestamp_pat.search(obj).group('stamp')
+                    # TODO: general path
+                    # reading the file from the gs bucket
+                    # first download the folder resutls/bounds_20160101 locally
+                    listOfBounds = [obj.name for obj in dir_uri.get_bucket() if 'bounds_20160101' in obj.name]
+                    listOfBounds = [obj.name for obj in dir_uri.get_bucket() if 'bounds_weekly' in obj.name]
+
+                    for filename in listOfBounds:
+                        bucket_name = 'gs://ooivideos-test-bucket' # change to more general after that
+                        bucket_uri = boto.storage_uri(bucket_name+'/'+filename)
+                        object_contents = StringIO.StringIO()
+                        bucket_uri.get_key().get_file(object_contents)
+                        local_uri = boto.storage_uri(filename, 'file')
+                        object_contents.seek(0)
+                        local_uri.new_key().set_contents_from_file(object_contents)
+                        object_contents.close()
+
+
+                    # then read from local files
+                    fn = 'results/bounds_weekly/Bounds_{}.csv'.format(t_raw)
+
+                    with open(fn, 'r') as csvfile:
+                        #TODO: do not hardcode this. assuming fps 29.97 and sample rate of 1/10 frames
+                        multiplier = 10.0/29.97
+
+                        reader = csv.reader(csvfile)
+                        # eat header
+                        next(reader, None)
+                        i = 0
+                        for row in reader:
+                            cur.execute("insert into scene_bounds values (timestamp %s, %s, %s, %s, %s)", (t, i, opt.method, float(row[0])*multiplier, float(row[1])*multiplier))
+                            i += 1
+                        db.commit()
+
                 else:
                     raise Exception("method unknown: {}".format(opt.method))
 
