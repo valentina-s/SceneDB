@@ -37,3 +37,19 @@ def extract_scenes(name, bounds):
         files.append(outname)
 
     return files
+
+def main():
+    # read bounds from a .csv file
+    import pandas as pd
+    import sys
+    bounds = pd.read_csv(sys.argv[2])
+    # convert the bounds to list of tuples
+    listOfBounds = []
+    subsampleRate = 10
+
+    for idx,lb,ub in zip(bounds.index,bounds['LB'],bounds['UB']):
+        listOfBounds.append((idx,lb*10/29.7,ub*10/29.7))
+    extract_scenes(sys.argv[1],listOfBounds)
+
+if __name__ == '__main__':
+    main()
