@@ -225,28 +225,27 @@ if __name__ == '__main__':
                     print(obj)
                     t = extract_timestamp(obj)
 
-                    if opt.dst_uri is not None:
-                        dst_uri = urlparse(opt.dst_uri)
-                        local_dir = os.path.split(obj)[0]
-                        print(local_dir)
-                        try:
-                            os.makedirs(local_dir)
-                        except OSError as exc:
-                            if exc.errno == errno.EEXIST and os.path.isdir(local_dir):
-                                pass
-                            else:
-                                raise exc
-
-                        if not opt.cache_input_videos:
-                            print "saving locally temporarily:", obj
+                    # loading the filesa locally
+                    local_dir = os.path.split(obj)[0]
+                    print(local_dir)
+                    try:
+                        os.makedirs(local_dir)
+                    except OSError as exc:
+                        if exc.errno == errno.EEXIST and os.path.isdir(local_dir):
+                            pass
                         else:
-                            print "saving locally (won't remove automatically):", obj
+                            raise exc
+
+                    if not opt.cache_input_videos:
+                        print "saving locally temporarily:", obj
+                    else:
+                        print "saving locally (won't remove automatically):", obj
 
 
-                        with open(obj, 'wb') as tempf:
-                            print(file_uri)
-                            print(src_uri.hostname)
-                            file_uri.get_key().get_file(tempf)
+                    with open(obj, 'wb') as tempf:
+                        print(file_uri)
+                        print(src_uri.hostname)
+                        file_uri.get_key().get_file(tempf)
 
                     print(obj)
                     rolling_mean, rolling_var = calculate_stats.calculateRollingStats(os.path.join('..',obj))
