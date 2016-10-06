@@ -22,7 +22,7 @@ def extract_scenes(name, bounds):
                                     -y \
                                   -ss {start} \
                                   -i {inf} \
-                                  -to {duration} \
+                                  -t {duration} \
                                   -c copy \
                                   {outf}".format(
                 start=start, duration=end-start, inf=name, outf=outname),
