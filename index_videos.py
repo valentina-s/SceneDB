@@ -248,7 +248,7 @@ if __name__ == '__main__':
                         file_uri.get_key().get_file(tempf)
 
                     print(obj)
-                    rolling_mean, rolling_var = calculate_stats.calculateRollingStats(os.path.join('..',obj))
+                    rolling_mean, rolling_var = calculate_stats.calculateRollingStats(obj)
 
                     # write bounds to file
                     pd.DataFrame(rolling_var).to_csv(os.path.join(results_path,filename_out), index = None, header = None)
