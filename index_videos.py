@@ -210,14 +210,16 @@ if __name__ == '__main__':
                 elif opt.method == '1d-variance':
                     import imp
                     # need the full path on the instance
-                    imp.load_source('calculate_stats','/home/vms16/OOIVideos/code/calculate_video_statistics.py')
-                    imp.load_source('extract_scenes','/home/vms16/OOIVideos/code/extract_scenes.py')
+                    imp.load_source("calculate_stats","/home/vms16/OOIVideos/code/calculate_video_statistics.py")
+                    imp.load_source("extract_scenes","/home/vms16/OOIVideos/code/extract_scenes.py")
                     print('obj')
                     print(obj)
+                    import calculate_stats
+                    import extract_scenes
                     ###
                     # read the obj
                     ###
-                    rolling_mean, rolling_var = calculate_stats.calculateRollingStats(obj)
+                    rolling_mean, rolling_var = calculate_stats.calculateRollingStats(os.path.join('..',obj))
 
                     # write bounds to file
                     pd.DataFrame(rolling_var).to_csv(os.path.join(results_path,filename_out), index = None, header = None)
