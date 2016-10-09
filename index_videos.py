@@ -7,7 +7,7 @@ from urlparse import urlparse
 import argparse
 import errno
 import ffmpeg_extract
-
+import pandas as pd
 
 cur = db.cursor()
 
@@ -248,25 +248,30 @@ if __name__ == '__main__':
                         file_uri.get_key().get_file(tempf)
 
                     print(obj)
-                    rolling_mean, rolling_var = calculate_stats.calculateRollingStats(obj)
+                    rolling_mean, rolling_var = calculate_stats.calculateRollingStats(obj,subsampleRate=10)
+                    bounds = extract_scenes.extractSceneBounds(rolling_var, thresh = '2median')
+
+                    
 
                     # write bounds to file
+                    filename_in =  obj
+                    filename_out = 'bounds_weekly/Bounds_' + filename_in[-20:-4] + '.csv'
+                    results_path = os.path.join(os.getcwd(),'results')
                     pd.DataFrame(rolling_var).to_csv(os.path.join(results_path,filename_out), index = None, header = None)
                     # read bounds from file
 
+                    pd.DataFrame(bounds,columns = ['LB','UB']).to_csv(os.path.join(results_path,filename_out), index = None)
                     # loading the file
                     #  calculate var (this takes forever)
                     # extract scenes based on variance
 
+               
                     import csv
                     import StringIO
                     t_raw = raw_timestamp_pat.search(obj).group('stamp')
                     # TODO: general path
                     # reading the file from the gs bucket
-                    # first download the folder resutls/bounds_20160101 locally
-                    listOfBounds = [obj.name for obj in dir_uri.get_bucket() if 'bounds_20160101' in obj.name]
-                    listOfBounds = [obj.name for obj in dir_uri.get_bucket() if 'bounds_weekly' in obj.name]
-
+             
 
 
                     with open(os.path.join(results_path,filename_out), 'r') as csvfile:
