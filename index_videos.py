@@ -248,7 +248,7 @@ if __name__ == '__main__':
                         file_uri.get_key().get_file(tempf)
 
                     print(obj)
-                    rolling_mean, rolling_var = calculate_stats.calculateRollingStats(obj,subsampleRate=10)
+                    rolling_mean, rolling_var = calculate_stats.calculateRollingStats(obj,lag=3,subsampleRate=10)
                     bounds = extract_scenes.extractSceneBounds(rolling_var, thresh = '2median')
 
                     
